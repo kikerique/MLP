@@ -29,7 +29,7 @@ salidas=cell(1,capas-1);
 
 for j=2:capas
     pesos{j-1}=randi([-1 1],arquitectura(j),arquitectura(j-1));
-    bias{j-1}=randi([-1 1],arquitectura(j),arquitectura(j-1));
+    bias{j-1}=randi([-1 1],arquitectura(j),1);
 end
 %inicializamos los vectores de pesos y bias
 
@@ -43,7 +43,7 @@ for j=1:epocas
         for i=1:capas-1
            if funciones(i)==1
                %función de activación: purelin()
-               %salidas{i}=f(pesos{i}*entrada + bias{i});
+               %salidas{1,i}=f(pesos{1,i}*entrada + bias{1,i});
            elseif funciones(i)==2
                %función de activación: logsig()
            elseif funciones(i)==3
