@@ -17,8 +17,8 @@ funciones=load(strcat(nombreFunciones,'.txt'),'-ascii');
 epocas=input('Ingrese el numero de epocas maximas\n');
 alpha=input('Ingrese el valor de alpha\n');
 Eepoch=input('Ingrese el valor del Eepoch minimo\n');
-numval=input('Ingrese el valor de numval para el algoritmos de early stopping');
-Epochevaluacion=input('Ingrese el numero de epocas necesarias para realizar una evaluacion');
+numval=input('Ingrese el valor de numval para el algoritmos de early stopping\n');
+Epochevaluacion=input('Ingrese el numero de epocas necesarias para realizar una evaluacion\n');
 %Pidiendo los valores necesarios al usuario
 
 %inicializamos los vectores de pesos y bias
