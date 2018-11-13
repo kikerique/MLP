@@ -21,16 +21,22 @@ numval=input('Ingrese el valor de numval para el algoritmos de early stopping\n'
 Epochevaluacion=input('Ingrese el numero de epocas necesarias para realizar una evaluacion\n');
 %Pidiendo los valores necesarios al usuario
 
-%inicializamos los vectores de pesos y bias
+%inicializamos los vectores de pesos,bias, entradas de cada capa
+
 [~,capas]= size(arquitectura);
 pesos=cell(1,capas-1);
 bias=cell(1,capas-1);
-salidas=cell(1,capas-1);
+entradas=cell(1,capas);
 
-for j=2:capas
-    pesos{j-1}=randi([-1 1],arquitectura(j),arquitectura(j-1));
-    bias{j-1}=randi([-1 1],arquitectura(j),1);
-end
+pesos{1}=[-0.27;-0.41];
+bias{1}=[-0.48;-0.13];
+
+pesos{2}=[0.09 -0.17];
+bias{2}=0.48;
+%for j=2:capas
+ %   pesos{j-1}=randi([-1 1],arquitectura(j),arquitectura(j-1));
+  %  bias{j-1}=randi([-1 1],arquitectura(j),1);
+%end
 %inicializamos los vectores de pesos y bias
 
 %Comenzamos con el aprendizaje
@@ -40,18 +46,25 @@ for j=1:epocas
         %evaluacion();
     else
         %Feedforward de los datos
-        for i=1:capas-1
-           if funciones(i)==1
-               %función de activación: purelin()
-               %salidas{1,i}=f(pesos{1,i}*entrada + bias{1,i});
-           elseif funciones(i)==2
-               %función de activación: logsig()
-           elseif funciones(i)==3
-               %función de activación: tansig()
-           end
-           %Guardar los pesos y bias en un archivo 
-           %Backpropagation();
-        end
+        for k=1:R
+            entradas{1}=entrada(k);
+            for i=2:capas
+               if funciones(i-1)==1
+                   %función de activación: purelin()
+                   entradas{i}=purelin(pesos{i-1}*entradas{i-1} + bias{i-1});
+               elseif funciones(i-1)==2
+                   %función de activación: logsig()
+                   entradas{i}=logsig(pesos{i-1}*entradas{i-1} + bias{i-1});
+               elseif funciones(i-1)==3
+                   %función de activación: tansig()
+                   entradas{i}=tansig(pesos{i-1}*entradas{i-1} + bias{i-1});
+               end
+            end
+            %GuardarPesosyBias();
+            F=rellenaMatrizF(arquitectura,funciones,entradas);
+            [pesos,bias]=backpropagation(F,pesos,bias,entradas,capas-1,target(k)-entradas{capas},alpha);
+            error=error+abs(target(k)-entradas{capas});
+        end   
     end
     %Criterio de terminación
     if(error<Eepoch)
