@@ -28,16 +28,11 @@ if cargarDatos~='s'
     pesos=cell(1,capas-1);
     bias=cell(1,capas-1);
     entradas=cell(1,capas);
-
-    pesos{1}=[-0.27;-0.41];
-    bias{1}=[-0.48;-0.13];
-
-    pesos{2}=[0.09 -0.17];
-    bias{2}=0.48;
-    %for j=2:capas
-     %   pesos{j-1}=randi([-1 1],arquitectura(j),arquitectura(j-1));
-      %  bias{j-1}=randi([-1 1],arquitectura(j),1);
-    %end
+    
+    for j=2:capas
+        pesos{j-1}=randi([-1 1],arquitectura(j),arquitectura(j-1));
+        bias{j-1}=randi([-1 1],arquitectura(j),1);
+    end
     %inicializamos los vectores de pesos y bias
     [setEnt,setComp,setVal,tEnt,tVal,tComp]=separaConjuntos(entrada,target,tipo);
     [R,~]=size(setEnt);
