@@ -67,7 +67,7 @@ for j=1:epocas
             %GuardarPesosyBias();
             F=rellenaMatrizF(arquitectura,funciones,entradas);
             [pesos,bias]=backpropagation(F,pesos,bias,entradas,capas-1,target(k)-entradas{capas},alpha);
-            error=error+abs(tEnt(k)-entradas{capas});
+            err=err+abs(tEnt(k)-entradas{capas});
             hold on;
             title('Salida modo regresor')
             plot(setEnt(k),tEnt(k),'*');
@@ -81,7 +81,7 @@ for j=1:epocas
     end
 end
 disp('Error de la ultima epoca=');
-%disp(err/R);
+disp(err/R);
 save('salvados.mat');
 
 
