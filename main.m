@@ -62,6 +62,7 @@ end
 numvalidaciones=epocas/Epochevaluacion;
 errval=0;
 aux=1;
+auxiliar=0;
 count=0;
 errvali=zeros(1,numvalidaciones);
 for j=1:epocas
@@ -101,7 +102,7 @@ for j=1:epocas
         
         %termina earlystoping
         
-        
+        err=auxiliar;
     else
         %Feedforward de los datos
         for k=1:R
@@ -136,6 +137,7 @@ for j=1:epocas
         disp('Ya convergí');
        break; 
     end
+    auxiliar=err;
 end
 disp('Error de la ultima epoca=');
 disp(err/R);
