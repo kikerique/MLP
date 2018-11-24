@@ -14,6 +14,7 @@ function [setEnt,setComp,setVal,tEnt,tVal,tComp]=separaConjuntos(e,t,tipo)
     tEnt=zeros(mayor,1);
     tComp=zeros(menor,1);
     tVal=zeros(menor,1);
+    
     contador1=1;
     contador2=1;
     contador3=1;

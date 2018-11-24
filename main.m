@@ -28,6 +28,7 @@ if cargarDatos~='s'
     pesos=cell(1,capas-1);
     bias=cell(1,capas-1);
     entradas=cell(1,capas);
+    entradasval=cell(1,capas);
     
     for j=2:capas
         pesos{j-1}=randi([-1 1],arquitectura(j),arquitectura(j-1));
@@ -36,6 +37,20 @@ if cargarDatos~='s'
     %inicializamos los vectores de pesos y bias
     [setEnt,setComp,setVal,tEnt,tVal,tComp]=separaConjuntos(entrada,target,tipo);
     [R,~]=size(setEnt);
+    [R1,~]=size(setVal);
+    
+    %comprobacion de la distribucion
+    figure(1)
+    hold on
+    title("kaa");
+    plot(setEnt,tEnt,'ro');
+    plot(setComp,tComp,'b*');
+    plot(setVal,tVal,'g*');
+    hold off
+    
+    
+    
+    
 else
     clear;
     load('salvados.mat');
@@ -44,10 +59,49 @@ else
     Epochevaluacion=input('Ingrese el numero de epocas necesarias para realizar una evaluacion\n');
 end
 %Comenzamos con el aprendizaje
+numvalidaciones=epocas/Epochevaluacion;
+errval=0;
+aux=1;
+count=0;
+errvali=zeros(1,numvalidaciones);
 for j=1:epocas
     err=0;
     if(mod(j,Epochevaluacion)==0)
         %evaluacion();
+        for k=1:R1
+            entradasval{1}=setVal(k);
+            for i=2:capas
+                if funciones(i-1)==1
+                   %función de activación: purelin()
+                   entradasval{i}=purelin(pesos{i-1}*entradasval{i-1} + bias{i-1});
+               elseif funciones(i-1)==2
+                   %función de activación: logsig()
+                   entradasval{i}=logsig(pesos{i-1}*entradasval{i-1} + bias{i-1});
+               elseif funciones(i-1)==3
+                   %función de activación: tansig()
+                   entradasval{i}=tansig(pesos{i-1}*entradasval{i-1} + bias{i-1});
+                end
+            end
+            errval=errval+abs(tVal(k)-entradasval{capas});
+        end
+        %earlystoping
+        errvali(aux)=errval/R1;
+        if (aux-1~=0) && (errvali(aux)> errvali(aux-1))
+            count=count+1;
+        else
+            count=0;
+        end
+        if(count>=numval)
+            disp('Se rebaso el numval')
+            exit(0);
+        end
+        aux=aux+1;   
+        
+        
+        
+        %termina earlystoping
+        
+        
     else
         %Feedforward de los datos
         for k=1:R
@@ -68,6 +122,9 @@ for j=1:epocas
             F=rellenaMatrizF(arquitectura,funciones,entradas);
             [pesos,bias]=backpropagation(F,pesos,bias,entradas,capas-1,target(k)-entradas{capas},alpha);
             err=err+abs(tEnt(k)-entradas{capas});
+            figure(2);
+            
+            
             hold on;
             title('Salida modo regresor')
             plot(setEnt(k),tEnt(k),'*');
@@ -83,6 +140,3 @@ end
 disp('Error de la ultima epoca=');
 disp(err/R);
 save('salvados.mat');
-
-
-
