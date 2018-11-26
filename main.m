@@ -20,6 +20,10 @@ if cargarDatos~='s'
     Eepoch=input('Ingrese el valor del Eepoch minimo\n');
     numval=input('Ingrese el valor de numval para el algoritmos de early stopping\n');
     Epochevaluacion=input('Ingrese el numero de epocas necesarias para realizar una evaluacion\n');
+    eEval=-1;
+    contador=-1;
+    [setEnt,setEval,setVal,tEnt,tVal,tEval]=separaConjuntos(entrada,target,tipo);
+    [R,~]=size(setEnt);
     %Pidiendo los valores necesarios al usuario
 
     %inicializamos los vectores de pesos,bias, entradas de cada capa
@@ -28,81 +32,51 @@ if cargarDatos~='s'
     pesos=cell(1,capas-1);
     bias=cell(1,capas-1);
     entradas=cell(1,capas);
-    entradasval=cell(1,capas);
-    
     for j=2:capas
-        pesos{j-1}=randi([-1 1],arquitectura(j),arquitectura(j-1));
-        bias{j-1}=randi([-1 1],arquitectura(j),1);
+        pesos{j-1}=2*rand(arquitectura(j),arquitectura(j-1))-1;
+        bias{j-1}=2*rand(arquitectura(j),1)-1;
     end
     %inicializamos los vectores de pesos y bias
-    [setEnt,setComp,setVal,tEnt,tVal,tComp]=separaConjuntos(entrada,target,tipo);
-    [R,~]=size(setEnt);
-    [R1,~]=size(setVal);
-    
-    %comprobacion de la distribucion
-    figure(1)
-    hold on
-    title("kaa");
-    plot(setEnt,tEnt,'ro');
-    plot(setComp,tComp,'b*');
-    plot(setVal,tVal,'g*');
-    hold off
-    
-    
-    
     
 else
     clear;
     load('salvados.mat');
+    [~,capas]= size(arquitectura);
+    [R,~]=size(setEnt);
+    entradas=cell(1,capas);
+    j=0;
+    k=0;
     epocas=input('Ingrese el numero de epocas maximas\n');
     numval=input('Ingrese el valor de numval para el algoritmo de early stopping\n');
     Epochevaluacion=input('Ingrese el numero de epocas necesarias para realizar una evaluacion\n');
+    eEval=-1;
+    contador=-1;
 end
 %Comenzamos con el aprendizaje
-numvalidaciones=epocas/Epochevaluacion;
-errval=0;
-aux=1;
-auxiliar=0;
-count=0;
-errvali=zeros(1,numvalidaciones);
+%for j=1:epocas
+
 for j=1:epocas
     err=0;
     if(mod(j,Epochevaluacion)==0)
-        %evaluacion();
-        for k=1:R1
-            entradasval{1}=setVal(k);
-            for i=2:capas
-                if funciones(i-1)==1
-                   %función de activación: purelin()
-                   entradasval{i}=purelin(pesos{i-1}*entradasval{i-1} + bias{i-1});
-               elseif funciones(i-1)==2
-                   %función de activación: logsig()
-                   entradasval{i}=logsig(pesos{i-1}*entradasval{i-1} + bias{i-1});
-               elseif funciones(i-1)==3
-                   %función de activación: tansig()
-                   entradasval{i}=tansig(pesos{i-1}*entradasval{i-1} + bias{i-1});
-                end
+        disp('Epoca de evaluacion');
+        disp(j);
+        errorEvaluacion=evaluacion(setEval,tEval,funciones,pesos,bias,capas);
+        X=['Error anterior= ',num2str(eEval),' Error actual= ',num2str(errorEvaluacion)];
+        disp(X);
+        if(errorEvaluacion>eEval)
+            contador=contador+1;
+            if(contador==numval)
+                err=aux;
+                disp('Se ha activado Early Stopping');
+                break;
             end
-            errval=errval+abs(tVal(k)-entradasval{capas});
-        end
-        %earlystoping
-        errvali(aux)=errval/R1;
-        if (aux-1~=0) && (errvali(aux)> errvali(aux-1))
-            count=count+1;
         else
-            count=0;
+            contador=0;
         end
-        if(count>=numval)
-            disp('Se rebaso el numval')
-            exit(0);
-        end
-        aux=aux+1;   
-        
-        
-        
-        %termina earlystoping
-        
-        err=auxiliar;
+        X=['Valor de numval= ',num2str(contador)];
+        disp(X);
+        eEval=errorEvaluacion;
+        err=aux;
     else
         %Feedforward de los datos
         for k=1:R
@@ -121,24 +95,25 @@ for j=1:epocas
             end
             %GuardarPesosyBias();
             F=rellenaMatrizF(arquitectura,funciones,entradas);
-            [pesos,bias]=backpropagation(F,pesos,bias,entradas,capas-1,target(k)-entradas{capas},alpha);
+            [pesos,bias,sens]=backpropagation(F,pesos,bias,entradas,capas-1,tEnt(k)-entradas{capas},alpha);
+            
             err=err+abs(tEnt(k)-entradas{capas});
-            figure(2);
-            
-            
-            hold on;
-            title('Salida modo regresor')
-            plot(setEnt(k),tEnt(k),'*');
-            plot(setEnt(k),entradas{capas},'o');
         end   
     end
     %Criterio de terminación
     if((err/R)<Eepoch)
         disp('Ya convergí');
-       break; 
+       break;
     end
-    auxiliar=err;
+    aux=err;
 end
+
 disp('Error de la ultima epoca=');
 disp(err/R);
-save('salvados.mat');
+save('salvados.mat','pesos','bias','arquitectura','funciones','setEnt','tEnt','setVal','tVal','alpha','Eepoch','setEval','tEval');
+validacion(setEnt,tEnt,funciones,pesos,bias,capas,1);
+%Epoca de validacion
+validacion(setVal,tVal,funciones,pesos,bias,capas,2);
+
+
+
